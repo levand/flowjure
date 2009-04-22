@@ -14,6 +14,6 @@
                                 :min-required 1
                                 :max-required 1}}}
   (fn [pipe pipe-args args]
-      (str (vec (args "input")))))
+    (args "input")))
 
    

@@ -10,7 +10,8 @@
   "Creates a map object from an RSS 'item' entry"
   [item]
   (reduce (fn [acc it]
-            (assoc acc (:tag it) (first (:content it)))) {} (:content item)))
+            (assoc acc (keyword-to-str (:tag it)) 
+              (first (:content it)))) {} (:content item)))
 
 (def-component {:name "rss"
                 :category "Input"

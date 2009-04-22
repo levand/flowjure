@@ -12,6 +12,11 @@
   `(try ~expr
      (catch Exception e# (throw (new Exception ~msg e#)))))
 
+(defn keyword-to-str
+  "converts a keyword to a string"
+  [keyword]
+  (. (str keyword) substring 1))
+
 (defn load-pipe
   "Loads a pipe by parsing a pipe file. Returns a function which accepts the
 pipe's arguments and returns the pipe's output value when called."
