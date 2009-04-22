@@ -6,6 +6,12 @@
 (def *pipe* nil)
 (def *pipe-args* nil)
 
+(defmacro with-error
+  "Wraps an expression in a try-catch-throw block with an error message."
+  [msg expr]
+  `(try ~expr
+     (catch Exception e# (throw (new Exception ~msg e#)))))
+
 (defn load-pipe
   "Loads a pipe by parsing a pipe file. Returns a function which accepts the
 pipe's arguments and returns the pipe's output value when called."
@@ -13,13 +19,15 @@ pipe's arguments and returns the pipe's output value when called."
   (binding [*pipe* (ref {})
             *pipe-args* (ref [])]
     (do
-      (load-file pipe-file)
+      (with-error (str "Error loading pipe [" pipe-file "]")
+        (load-file pipe-file))
       (let [pipe *pipe*, pipe-args *pipe-args*]
         (fn [& args]
           (do
             (dosync (ref-set pipe-args args))
             ;; Find the output component
-            (apply (@pipe "pipe-output"))))))))
+            (with-error (str "Error running pipe[" (^@pipe "id") "]")
+              (apply (@pipe "pipe-output")))))))))
 
 (defmacro pipe
   "Macro that handles the 'pipe' form in a tube definition. Adds the config
@@ -75,7 +83,10 @@ It must return a seq unless it is of type 'Output'"
          (let [pipe-key# (if (= (:category ~component-cfg) "Output")
                            "pipe-output"
                            (args# "id"))] ;; Special name for output
-         (alter pipe# assoc pipe-key# (fn []
-                                         (action-fun# pipe#
-                                                      pipe-args#
-                                                      (resolve-args args# pipe#)))))))))
+         (alter pipe# assoc pipe-key# 
+           (fn []
+             (with-error (str "Error running pipe component[" (args# "id") "]")
+               (action-fun# pipe#
+                 pipe-args#
+                 (resolve-args args# pipe#))))))))))
+                                           
