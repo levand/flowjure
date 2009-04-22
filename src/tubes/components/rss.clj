@@ -13,13 +13,15 @@
             (assoc acc (:tag it) (first (:content it)))) {} (:content item)))
 
 (def-component {:name "rss"
-                :type "Input"
+                :category "Input"
                 :description "Loads an RSS Feed"
-                :min-inputs 0
-                :max-inputs 0
-                :args {:url "The URL of the RSS feed"}}
-  (fn [pipe pipe-args inputs cfg]
-    (let [xml (xml/parse (:url cfg))
+                :output-type "Record Sequence"
+                :args {"url" {:doc "The URL of the RSS feed"
+                              :type "String"
+                              :min-required 1
+                              :max-required 1}}}
+  (fn [pipe pipe-args args]
+    (let [xml (xml/parse (args "url"))
           zipper (zip/xml-zip xml)
           elements (-> zipper zip/down zip/children)
           items (filter #(= :item (:tag %)) elements)]

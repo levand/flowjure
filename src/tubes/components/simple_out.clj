@@ -6,12 +6,14 @@
   (:use tubes.engine))
 
 (def-component {:name "simple-out"
-                :type "Output"
+                :category "Output"
                 :description "Outputs a pipe as a Clojure string"
-                :min-inputs 1
-                :max-inputs 1
-                :args {}}
-  (fn [pipe pipe-args inputs args]
-    (str (vec (first inputs)))))
+                :output-type "String"
+                :args {"input" {:doc "The input"
+                                :type "Record Sequence"
+                                :min-required 1
+                                :max-required 1}}}
+  (fn [pipe pipe-args args]
+      (str (vec (args "input")))))
 
    

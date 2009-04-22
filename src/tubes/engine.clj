@@ -31,6 +31,32 @@ object as metadata to the *pipe* object."
        (let [pipe# @*pipe*]
          (ref-set *pipe* (with-meta pipe# (merge ^pipe# ~config)))))))
 
+(defmacro reference
+  "Takes a normal string intended as a reference, and concatnates a tag to it
+to ensure that it is tracked as a reference string and not a literal value"
+  [string]
+  (str "COMPONENT-REF:" string))
+
+(defn resolve-ref
+  "Resolves a reference which may be a simple string, or a component ref."
+  [pipe ref-string]
+  (if (. ref-string startsWith "COMPONENT-REF:")
+    (let [ref-name (. ref-string substring (count "COMPONENT-REF:"))
+          component-function (pipe ref-name)]
+      (apply component-function))
+    ref-string))
+
+(defn resolve-args
+  "Takes an args map from a component instance definition and, at runtime,
+resolves references and literal values"
+  [args pipe]
+  (reduce conj {} (map (fn [entry]
+                         [(key entry)
+                          (if (string? (val entry))
+                            (resolve-ref pipe (val entry))
+                            (map (partial resolve-ref pipe) (val entry)))])
+                    args)))
+
 (defmacro def-component
   "Expands to the full definition of a component. Resulting function
 ought only to be called when defining a pipe, or else it will throw an NPE.
@@ -41,49 +67,15 @@ It must return a seq unless it is of type 'Output'"
   [component-cfg fun]
   `(defn ~(with-meta (symbol (:name component-cfg)) {:pipe-component component-cfg})
      ~(:description component-cfg)
-     [cfg#]
+     [args#]
      (let [action-fun# ~fun
            pipe# tubes.engine/*pipe*
            pipe-args# tubes.engine/*pipe-args*]
        (dosync
-         (let [pipe-key# (if (= (:type ~component-cfg) "Output")
-                          "pipe-output" (:id cfg#))] ;; Special name for output
+         (let [pipe-key# (if (= (:category ~component-cfg) "Output")
+                           "pipe-output"
+                           (args# "id"))] ;; Special name for output
          (alter pipe# assoc pipe-key# (fn []
-                                         (action-fun# pipe# pipe-args#
-                                           (map (fn [arg#] (apply (get @pipe# arg#))) (:input cfg#))
-                                           cfg#))))))))
-   
-(comment
-  ; This is a sample macro expansion of the following form:
-  (def-component {:name "rss"
-                  :type "Inputter"
-                  :description "Loads an RSS Feed"
-                  :min-inputs 0
-                  :max-inputs 0
-                  :args {:url "The URL of the RSS feed"}}
-    (fn [pipe pipe-args inputs args]
-      (println (:url args))))
-
-  ;; The macro expansion:
- 
-  (defn #^{:pipe-component {:name "rss"
-                            :type "Inputter"
-                            :description "Loads an RSS Feed"
-                            :min-inputs 0
-                            :max-inputs 0
-                            :args {:url "The URL of the RSS feed"}}}
-    rss
-    "Loads an RSS Feed"
-    [cfg]
-    (let [action-fun (fn [pipe pipe-args inputs args]
-                       (println (:url args)))
-          pipe tubes.engine/*pipe*
-          pipe-args tubes.engine/*pipe-args*]
-      (dosync
-        (alter pipe assoc (:id cfg) (fn []
-                                      (action-fun pipe pipe-args
-                                        (map #(get @pipe %) (:input cfg))
-                                        cfg))))))
-  )
-
-
+                                         (action-fun# pipe#
+                                                      pipe-args#
+                                                      (resolve-args args# pipe#)))))))))
