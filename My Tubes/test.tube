@@ -1,8 +1,8 @@
-(pipe {:id "testpipe"
-       :name "Test Aggregator"
-       :description "Test RSS Aggregator"
-       :require ["tubes.components.rss" "tubes.components.simple-out"]
-       :args []})
+(pipe {"id" "testpipe"
+       "name" "Test Aggregator"
+       "description" "Test RSS Aggregator"
+       "require" ["tubes.components.rss" "tubes.components.simple-out"]
+       "args" []})
 
 (tubes.components.rss/rss {"id" "cnn"
                            "url" "http://rss.cnn.com/rss/cnn_topstories.rss"})
