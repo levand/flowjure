@@ -1,8 +1,8 @@
 ;;  Author: Luke VanderHart
 ;;  Creation Date: 4/16/2009
 
-(ns tubes.components.sort
-  (:use tubes.engine))
+(ns flowjure.components.sort
+  (:use flowjure.engine))
 
 (def-component {:name "sort-records"
                 :category "Transform"

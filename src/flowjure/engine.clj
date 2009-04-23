@@ -1,7 +1,7 @@
 ;;  Author: Luke VanderHart
 ;;  Creation Date: 4/16/2009
 
-(ns tubes.engine)
+(ns flowjure.engine)
 
 (def *pipe* nil)
 (def *pipe-args* nil)
@@ -35,7 +35,7 @@ pipe's arguments and returns the pipe's output value when called."
               (apply (@pipe "pipe-output")))))))))
 
 (defmacro pipe
-  "Macro that handles the 'pipe' form in a tube definition. Adds the config
+  "Macro that handles the 'pipe' form in a pipe definition. Adds the config
 object as metadata to the *pipe* object."
   [config]
   `(do
@@ -82,8 +82,8 @@ It must return a seq unless it is of type 'Output'"
      ~(:description component-cfg)
      [args#]
      (let [action-fun# ~fun
-           pipe# tubes.engine/*pipe*
-           pipe-args# tubes.engine/*pipe-args*]
+           pipe# flowjure.engine/*pipe*
+           pipe-args# flowjure.engine/*pipe-args*]
        (dosync
          (let [pipe-key# (if (= (:category ~component-cfg) "Output")
                            "pipe-output"

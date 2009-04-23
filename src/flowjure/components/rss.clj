@@ -1,10 +1,10 @@
 ;;  Author: Luke VanderHart
 ;;  Creation Date: 4/16/2009
 
-(ns tubes.components.rss
+(ns flowjure.components.rss
   (:require [clojure.xml :as xml]
              [clojure.zip :as zip])
-  (:use tubes.engine))
+  (:use flowjure.engine))
 
 (defn create-map
   "Creates a map object from an RSS 'item' entry"

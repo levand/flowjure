@@ -1,26 +1,26 @@
 (pipe {"id" "testpipe"
        "name" "Test Aggregator"
        "description" "Test RSS Aggregator"
-       "require" ["tubes.components.rss" "tubes.components.simple-out"]
+       "require" ["flowjure.components.rss" "flowjure.components.simple-out"]
        "args" []})
 
-(tubes.components.rss/rss {"id" "cnn"
+(flowjure.components.rss/rss {"id" "cnn"
                            "url" "http://rss.cnn.com/rss/cnn_topstories.rss"})
 
-(tubes.components.rss/rss {"id" "abc"
+(flowjure.components.rss/rss {"id" "abc"
                            "url" "http://feeds2.feedburner.com/AbcNews_TopStories"})
 
-(tubes.components.rss/rss {"id" "fox"
+(flowjure.components.rss/rss {"id" "fox"
                            "url" "http://feeds.foxnews.com/foxnews/latest"})
 
-(tubes.components.concatenate/concatenate {"id" "together"
+(flowjure.components.concatenate/concatenate {"id" "together"
                                            "inputs" [(reference "cnn")
                                                      (reference "abc")
                                                      (reference "fox")]})
 
-(tubes.components.sort/sort-records {"id" "sorted"
+(flowjure.components.sort/sort-records {"id" "sorted"
                                      "key" "title"
                                      "input" (reference "together")})
 
-(tubes.components.simple-out/simple-out {"id" "output"
+(flowjure.components.simple-out/simple-out {"id" "output"
                                          "input" (reference "sorted")})

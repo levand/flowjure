@@ -1,8 +1,8 @@
 ;;  Author: Luke VanderHart
 ;;  Creation Date: 4/16/2009
 
-(ns tubes.components.concatenate
-  (:use tubes.engine))
+(ns flowjure.components.concatenate
+  (:use flowjure.engine))
 
 (def-component {:name "concatenate"
                 :category "Transform"
